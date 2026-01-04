@@ -1,6 +1,8 @@
 package com.orbital.backend.service;
 
-import com.orbital.backend.model.Satellite;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
 import org.orekit.bodies.BodyShape;
 import org.orekit.bodies.GeodeticPoint;
@@ -10,12 +12,12 @@ import org.orekit.frames.FramesFactory;
 import org.orekit.propagation.analytical.tle.TLE;
 import org.orekit.propagation.analytical.tle.TLEPropagator;
 import org.orekit.time.AbsoluteDate;
+import org.orekit.time.TimeScalesFactory;
 import org.orekit.utils.Constants;
 import org.orekit.utils.IERSConventions;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.orbital.backend.model.Satellite;
 
 @Service
 public class OrbitalMechanicsService {
@@ -29,8 +31,8 @@ public class OrbitalMechanicsService {
             // Setting up the math engine
             TLEPropagator propagator = TLEPropagator.selectExtrapolator(tle);
 
-            // Getting current time (UTC)
-            AbsoluteDate currentDate = new AbsoluteDate();
+            // Getting current time (UTC) using proper Orekit constructor
+            AbsoluteDate currentDate = new AbsoluteDate(new java.util.Date(), TimeScalesFactory.getUTC());
 
             // Calculating 3D Position
             Vector3D position = propagator.getPVCoordinates(currentDate).getPosition();
@@ -54,7 +56,8 @@ public class OrbitalMechanicsService {
             return data;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error calculating satellite position for: " + sat.getName());
+            System.err.println("Error details: " + e.getMessage());
             return null;
         }
     }

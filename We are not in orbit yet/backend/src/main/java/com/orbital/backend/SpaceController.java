@@ -1,19 +1,20 @@
 package com.orbital.backend;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.orbital.backend.model.Satellite;
 import com.orbital.backend.repository.SatelliteRepository;
 import com.orbital.backend.service.OrbitalMechanicsService;
 import com.orbital.backend.service.TleService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.orekit.time.AbsoluteDate;
-import org.orekit.time.TimeScalesFactory;
 
 @RestController
+@RequestMapping("/api")
 public class SpaceController {
 
     private final TleService tleService;
@@ -28,19 +29,19 @@ public class SpaceController {
         this.mechanicsService = mechanicsService;
     }
 
-    @GetMapping("/api/health")
+    @GetMapping("/health")
     public String healthCheck() {
         long count = satelliteRepository.count();
         return "Systems online: Tracking " + count + " satellites.";
     }
 
-    @GetMapping("/api/sync")
+    @GetMapping("/sync")
     public String syncData(){
         tleService.fetchAndSaveTles();
         return "Sync has been initiated. Check the console for more details.";
     }
 
-    @GetMapping("/api/satellites")
+    @GetMapping("/satellites")
     public List<Map<String, Object>> getSatellites() {
         List<Satellite> satellites = satelliteRepository.findAll();
         List<Map<String, Object>> livePositions = new ArrayList<>();
