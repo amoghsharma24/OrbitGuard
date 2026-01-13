@@ -25,5 +25,5 @@ public class Satellite {
     @Column(length = 100)
     private String line2;
 
-    private String type; // "STATION" or "DEBRIS"
+    private String type;
 }
