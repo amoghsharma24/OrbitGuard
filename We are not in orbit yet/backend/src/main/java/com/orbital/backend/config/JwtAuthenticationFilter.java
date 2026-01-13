@@ -47,18 +47,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("✅ Bearer Token Found.");
+        System.out.println("Bearer Token Found.");
         jwt = authHeader.substring(7);
 
         try {
             userEmail = jwtService.extractUsername(jwt);
-            System.out.println("👤 Token belongs to: " + userEmail);
+            System.out.println("Token belongs to: " + userEmail);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    System.out.println("🔓 Token is VALID. Authenticating user.");
+                    System.out.println("Token is VALID. Authenticating user.");
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -67,12 +67,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    System.out.println("❌ Token is INVALID or EXPIRED.");
+                    System.out.println("Token is INVALID or EXPIRED.");
                 }
             }
         } catch (Exception e) {
-            System.out.println("❌ ERROR parsing token: " + e.getMessage());
-            e.printStackTrace(); // PRINT THE FULL ERROR
+            System.out.println("ERROR parsing token: " + e.getMessage());
+            e.printStackTrace();
         }
 
         filterChain.doFilter(request, response);
