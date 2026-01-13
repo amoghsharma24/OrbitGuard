@@ -118,8 +118,12 @@ function App() {
         {/* Status HUD */}
         {selectedSatellite && (
           <div style={hudStyle}>
-            <div style={{ fontWeight: "bold", marginBottom: 6 }}>{selectedSatellite.name}</div>
-            <div>Velocity: {(selectedSatellite.velocity_km_s || 0).toFixed(3)} km/s</div>
+            <div style={{ fontWeight: "bold", marginBottom: 6 }}>
+              {selectedSatellite.name}
+            </div>
+            <div>
+              Velocity: {(selectedSatellite.velocity_km_s || 0).toFixed(3)} km/s
+            </div>
             <div>Altitude: {(selectedSatellite.alt || 0).toFixed(2)} km</div>
             <button
               onClick={() => {
