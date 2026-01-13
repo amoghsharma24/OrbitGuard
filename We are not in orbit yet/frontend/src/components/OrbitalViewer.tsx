@@ -798,12 +798,12 @@ const listContainerStyle: React.CSSProperties = {
 
 export default OrbitalViewer;
 
-const clearSelection = () => {
-  setSelectedPath([]);
-  setSelectedSatellite(null);
-  setIsWarningPath(false);
-  setIsIsolationMode(false);
-  if (globeEl.current) {
-    globeEl.current.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 800);
-  }
-};
+// const clearSelection = () => {
+//   setSelectedPath([]);
+//   setSelectedSatellite(null);
+//   setIsWarningPath(false);
+//   setIsIsolationMode(false);
+//   if (globeEl.current) {
+//     globeEl.current.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 800);
+//   }
+// };
