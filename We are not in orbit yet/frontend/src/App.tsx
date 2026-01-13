@@ -1,19 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import OrbitalViewer from "./components/OrbitalViewer";
 import Login from "./components/Login";
 import "./App.css";
+
+// Warning data type
+type Warning = {
+  object: string;
+  type: string;
+  distance: number;
+  timeOfApproach: string;
+  hoursFromNow: number;
+};
 
 function App() {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("jwt_token")
   );
   const [syncing, setSyncing] = useState(false);
+  const [warnings, setWarnings] = useState<Warning[]>([]);
+  const [selectedSatellite, setSelectedSatellite] = useState<any | null>(null);
 
   const handleLogin = (newToken: string) => {
     localStorage.setItem("jwt_token", newToken);
     setToken(newToken);
   };
+
+  // Fetching warnings data from backend
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchWarnings = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/warnings", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setWarnings(res.data.conjunctions || []);
+        console.log("Loaded", res.data.warningCount, "conjunction warnings");
+      } catch (err) {
+        console.error("Failed to fetch warnings:", err);
+      }
+    };
+
+    fetchWarnings();
+    // Refreshing warnings every 60 seconds
+    const interval = setInterval(fetchWarnings, 60000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem("jwt_token");
@@ -76,23 +109,30 @@ function App() {
 
       {/* Globe viewer */}
       <div style={viewerContainerStyle}>
-        <OrbitalViewer token={token} />
-      </div>
+        <OrbitalViewer
+          token={token}
+          warnings={warnings}
+          onSelectSatellite={(sat) => setSelectedSatellite(sat)}
+        />
 
-      {/* Bottom status bar */}
-      <div style={bottomBarStyle}>
-        <div style={statusItemStyle}>
-          <span style={statusLabelStyle}>SYSTEM</span>
-          <span style={statusValueStyle}>OPERATIONAL</span>
-        </div>
-        <div style={statusItemStyle}>
-          <span style={statusLabelStyle}>COVERAGE</span>
-          <span style={statusValueStyle}>GLOBAL</span>
-        </div>
-        <div style={statusItemStyle}>
-          <span style={statusLabelStyle}>MODE</span>
-          <span style={statusValueStyle}>REAL-TIME</span>
-        </div>
+        {/* Status HUD */}
+        {selectedSatellite && (
+          <div style={hudStyle}>
+            <div style={{ fontWeight: "bold", marginBottom: 6 }}>{selectedSatellite.name}</div>
+            <div>Velocity: {(selectedSatellite.velocity_km_s || 0).toFixed(3)} km/s</div>
+            <div>Altitude: {(selectedSatellite.alt || 0).toFixed(2)} km</div>
+            <button
+              onClick={() => {
+                setSelectedSatellite(null);
+                // notify globe to clear selection and zoom out
+                window.dispatchEvent(new Event("clearSelection"));
+              }}
+              style={hudCloseStyle}
+            >
+              Close
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -159,7 +199,7 @@ const buttonStyle: React.CSSProperties = {
   border: "1px solid #00ffff",
   borderRadius: "2px",
   cursor: "pointer",
-  fontFamily: "'Courier New', monospace",
+  fontFamily: "'Space Grotesk', sans-serif",
   fontSize: "11px",
   letterSpacing: "1px",
 };
@@ -174,6 +214,29 @@ const viewerContainerStyle: React.CSSProperties = {
   flex: 1,
   position: "relative",
   overflow: "hidden",
+};
+
+const hudStyle: React.CSSProperties = {
+  position: "fixed",
+  right: "20px",
+  top: "90px",
+  backgroundColor: "rgba(0,0,0,0.8)",
+  color: "#fff",
+  padding: "12px",
+  border: "1px solid rgba(0,255,255,0.15)",
+  borderRadius: "4px",
+  zIndex: 1200,
+  fontFamily: "'Space Grotesk', sans-serif",
+  fontSize: "12px",
+};
+
+const hudCloseStyle: React.CSSProperties = {
+  marginTop: "8px",
+  padding: "6px 8px",
+  background: "transparent",
+  border: "1px solid #00ffff",
+  color: "#00ffff",
+  cursor: "pointer",
 };
 
 const bottomBarStyle: React.CSSProperties = {
