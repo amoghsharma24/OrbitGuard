@@ -24,7 +24,7 @@ import com.orbital.backend.model.Satellite;
 @Service
 public class OrbitalMechanicsService {
 
-    // Calculating position for RIGHT NOW
+    // Calculating position for right now
     public Map<String, Object> getSatellitePosition(Satellite sat) {
         try {
             // Converting DB String to Orekit TLE object
@@ -49,7 +49,7 @@ public class OrbitalMechanicsService {
 
             // Packing into a Map for JSON
             // Calculate a very simple instantaneous velocity estimate (m/s)
-            AbsoluteDate futureDate = currentDate.shiftedBy(1.0); // 1 second ahead
+            AbsoluteDate futureDate = currentDate.shiftedBy(1.0);
             Vector3D futurePosition = propagator.getPVCoordinates(futureDate).getPosition();
             double velocity_m_s = position.distance(futurePosition);
 
@@ -58,8 +58,8 @@ public class OrbitalMechanicsService {
             data.put("name", sat.getName());
             data.put("latitude", Math.toDegrees(point.getLatitude()));
             data.put("longitude", Math.toDegrees(point.getLongitude()));
-            data.put("altitude", point.getAltitude() / 1000.0); // Converting meters to km
-            data.put("velocity_km_s", velocity_m_s / 1000.0); // km per second
+            data.put("altitude", point.getAltitude() / 1000.0);
+            data.put("velocity_km_s", velocity_m_s / 1000.0);
 
             return data;
 
@@ -70,7 +70,7 @@ public class OrbitalMechanicsService {
         }
     }
 
-    // Temporal Propagation: Predict position at future timestamp
+    // Temporal Propagation: Predicting position at future timestamp
     public Map<String, Object> getFuturePosition(Satellite sat, double secondsFromNow) {
         try {
             TLE tle = new TLE(sat.getLine1(), sat.getLine2());
@@ -95,7 +95,7 @@ public class OrbitalMechanicsService {
             data.put("longitude", Math.toDegrees(point.getLongitude()));
             data.put("altitude", point.getAltitude() / 1000.0);
             data.put("timestamp", futureDate.toString());
-            data.put("position", position); // Raw Vector3D for collision checks
+            data.put("position", position);
 
             return data;
         } catch (Exception e) {
